@@ -8,6 +8,7 @@ import android.content.pm.Signature;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.Log;
@@ -119,18 +120,18 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     @OnClick(R.id.btnLogin)
     public void onLogin() {
-//        boolean isAllDataEntered = false;
-//
-//        strEmail = etEmail.getText().toString();
-//        strPassword = etPassword.getText().toString();
-//        if (strEmail != null && strEmail.length() == 0) {
-//            Snackbar.make(btnLogin, "Please enter email address.", Snackbar.LENGTH_SHORT).show();
-//        } else if (strPassword != null && strPassword.length() == 0) {
-//            Snackbar.make(btnLogin, "Please enter password.", Snackbar.LENGTH_SHORT).show();
-//        } else {
-//            isAllDataEntered = true;
-//        }
-//        Log.e(TAG, "onLogin: " + isAllDataEntered);
+        boolean isAllDataEntered = false;
+
+        strEmail = etEmail.getText().toString();
+        strPassword = etPassword.getText().toString();
+        if (strEmail != null && strEmail.length() == 0) {
+            Snackbar.make(btnLogin, "Please enter email address.", Snackbar.LENGTH_SHORT).show();
+        } else if (strPassword != null && strPassword.length() == 0) {
+            Snackbar.make(btnLogin, "Please enter password.", Snackbar.LENGTH_SHORT).show();
+        } else {
+            isAllDataEntered = true;
+        }
+        Log.e(TAG, "onLogin: " + isAllDataEntered);
 //        if (isAllDataEntered) {
 //            boolean isUserExists = db.checkLoginUser(strEmail, strPassword);
 //            if (isUserExists) {
@@ -147,16 +148,16 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 //        }
     }
 
-//    @OnClick(R.id.btnFacebook)
-//    public void onFacebookPressed(){
-//        Log.e(TAG, "onFacebookPressed: ");
-//        facebookLogin();
-//    }
-//
-//    @OnClick(R.id.txtNeedAnAccount)
-//    public void onNeedAccountPressed(){
+    @OnClick(R.id.btnFacebook)
+    public void onFacebookPressed(){
+        Log.e(TAG, "onFacebookPressed: ");
+        facebookLogin();
+    }
+
+    @OnClick(R.id.txtNeedAnAccount)
+    public void onNeedAccountPressed(){
 //        startActivity(new Intent(LoginActivity.this, ParkPreferencesActivity.class));
-//    }
+    }
 
     public void facebookLogin() {
         mCallBackManager = CallbackManager.Factory.create();
