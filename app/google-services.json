@@ -1,0 +1,107 @@
+{
+  "project_info": {
+    "project_number": "574249781665",
+    "firebase_url": "https://surroundpay-1478324168258.firebaseio.com",
+    "project_id": "surroundpay-1478324168258",
+    "storage_bucket": "surroundpay-1478324168258.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:574249781665:android:25480ef0093430c2",
+        "android_client_info": {
+          "package_name": "com.sjmtechs.surroundpay"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "574249781665-p4g3t9c6e89rq985p1fio7965quuhh63.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sjmtechs.surroundpay",
+            "certificate_hash": "403B94D1146E688E975ECC1EA95E4FA2EE141AAC"
+          }
+        },
+        {
+          "client_id": "574249781665-uhcvbpilfmbr04o4stdmktj5otba4ecq.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "574249781665-hbbfr379i8ad2fut39cpb62rvd4hdpoc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvY7t2_xCusQcmIKMfLyVRbckP3CPCMvc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "574249781665-uhcvbpilfmbr04o4stdmktj5otba4ecq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:574249781665:android:64a9bde20ba46c7c",
+        "android_client_info": {
+          "package_name": "com.sjmtechs.park"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "574249781665-4fn0vmln8v95g7cg0m5fbmep9c63rn8g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sjmtechs.park",
+            "certificate_hash": "403B94D1146E688E975ECC1EA95E4FA2EE141AAC"
+          }
+        },
+        {
+          "client_id": "574249781665-uhcvbpilfmbr04o4stdmktj5otba4ecq.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "574249781665-hbbfr379i8ad2fut39cpb62rvd4hdpoc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvY7t2_xCusQcmIKMfLyVRbckP3CPCMvc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "574249781665-uhcvbpilfmbr04o4stdmktj5otba4ecq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
