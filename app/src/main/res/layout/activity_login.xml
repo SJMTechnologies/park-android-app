@@ -51,7 +51,7 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:drawableTint="#FF4081"
-                        android:hint="User Name"
+                        android:hint="@string/email_address"
                         android:inputType="textEmailAddress"
                         android:singleLine="true"/>
                 </android.support.design.widget.TextInputLayout>

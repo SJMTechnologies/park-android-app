@@ -148,11 +148,11 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 //        }
     }
 
-    @OnClick(R.id.btnFacebook)
-    public void onFacebookPressed(){
-        Log.e(TAG, "onFacebookPressed: ");
-        facebookLogin();
-    }
+//    @OnClick(R.id.btnFacebook)
+//    public void onFacebookPressed(){
+//        Log.e(TAG, "onFacebookPressed: ");
+//        facebookLogin();
+//    }
 
     @OnClick(R.id.txtNeedAnAccount)
     public void onNeedAccountPressed(){
@@ -232,6 +232,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         if (result.isSuccess()) {
             // Signed in successfully, show authenticated UI.
             GoogleSignInAccount acct = result.getSignInAccount();
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            intent.putExtra("name", acct.getDisplayName());
+            startActivity(intent);
             Log.e(TAG, "handleSignInResult: acct.getDisplayName() " + acct.getDisplayName());
         }
     }

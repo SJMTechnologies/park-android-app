@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity
     Toolbar toolbar;
 
     SharedPreferences pref;
+    private String username = "";
 //    boolean isLoggedIn = false;
     NavigationView navigationView;
     @Override
@@ -66,7 +67,13 @@ public class MainActivity extends AppCompatActivity
 //        pref = getSharedPreferences(Constant.PREF_NAME,0);
 //        String username = pref.getString(Constant.USER_NAME,"");
 
-//        txtUserName.setText(username);
+        try{
+            Intent intent = getIntent();
+            username = intent.getExtras().getString("name");
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        txtUserName.setText(username);
         bas_in = new FlipVerticalSwingEnter();
         bas_out = new FadeExit();
         btnPayNow = (Button) findViewById(R.id.btnPayNow);

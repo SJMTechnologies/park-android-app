@@ -27,13 +27,13 @@
     <string name="subscribe_no">No</string>
     <string name="continue_register">Continue</string>
     <string name="privacy_policy">I have read and agree to the Privacy Policy</string>
-    <string name="email_address">E-Mail Address</string>
+    <string name="email_address">Email Address</string>
     <string name="forgot_password">Forgotten Password</string>
     <string name="login">Login</string>
 
     <string-array name="country">
-        <item>India</item>
         <item>USA</item>
+        <item>India</item>
         <item>UK</item>
         <item>Nepal</item>
         <item>New Zealand</item>
@@ -41,17 +41,17 @@
     </string-array>
 
     <string-array name="state">
-        <item>Gujarat</item>
-        <item>Maharastra</item>
-        <item>UP</item>
-        <item>MP</item>
-        <item>Delhi</item>
-        <item>Punjab</item>
+        <item>Florida</item>
+        <item>North Carolina</item>
+        <item>Virginia</item>
+        <item>Missouri</item>
+        <item>California</item>
+        <item>South Carolina</item>
     </string-array>
     <string-array name="list_pref_array">
         <item>Require 4 digit PIN to process transaction</item>
-        <item>Require password to process transaction </item>
-        <item>No authentication to process transaction </item>
+        <item>Require password to process transaction</item>
+        <item>No authentication to process transaction</item>
     </string-array>
     <string-array name="list_pref_value">
         <item>1</item>
