@@ -2,7 +2,6 @@ package com.sjmtechs.park.activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
@@ -31,6 +30,7 @@ import com.sjmtechs.park.R;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
+@SuppressWarnings("deprecation")
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity
 
     Toolbar toolbar;
 
-    SharedPreferences pref;
     private String username = "";
 //    boolean isLoggedIn = false;
     NavigationView navigationView;
@@ -134,7 +133,7 @@ public class MainActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
@@ -173,7 +172,7 @@ public class MainActivity extends AppCompatActivity
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSION_REQUEST_CODE:
-                if (grantResults != null && grantResults.length > 0) {
+                if (grantResults.length > 0) {
                     if (grantResults[0] == PackageManager.PERMISSION_GRANTED
                             && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                         loadData();

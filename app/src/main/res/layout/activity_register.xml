@@ -15,8 +15,5 @@
 
         <include
             layout="@layout/activity_register_part_two"/>
-
-        <include
-            layout="@layout/activity_register_part_three"/>
     </LinearLayout>
 </ScrollView>

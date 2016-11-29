@@ -1,5 +1,6 @@
 package com.sjmtechs.park.activities;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -12,26 +13,50 @@ import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 
+import com.flyco.animation.BaseAnimatorSet;
+import com.flyco.animation.FadeExit.FadeExit;
+import com.flyco.animation.FlipEnter.FlipVerticalSwingEnter;
+import com.flyco.dialog.listener.OnBtnClickL;
+import com.flyco.dialog.widget.MaterialDialog;
 import com.sjmtechs.park.R;
-import com.sjmtechs.park.validation.Validation;
+import com.sjmtechs.park.adapter.CountryAdapter;
+import com.sjmtechs.park.adapter.StateAdapter;
+import com.sjmtechs.park.model.Country;
+import com.sjmtechs.park.model.Register;
+import com.sjmtechs.park.model.State;
+import com.sjmtechs.park.register.RegisterPresenterImpl;
+import com.sjmtechs.park.register.RegisterView;
+import com.sjmtechs.park.retrofit.ApiService;
+import com.sjmtechs.park.retrofit.RetroClient;
+import com.sjmtechs.park.utils.InternetConnection;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, RegisterView {
+
 
     private static final String TAG = RegisterActivity.class.getSimpleName();
+    BaseAnimatorSet bas_in;
+    BaseAnimatorSet bas_out;
     @InjectView(R.id.etFirstName)
     EditText etFirstName;
 
@@ -62,6 +87,12 @@ public class RegisterActivity extends AppCompatActivity {
     @InjectView(R.id.etPasswordConfirm)
     EditText etPasswordConfirm;
 
+    @InjectView(R.id.etBusinessName)
+    EditText etBusinessName;
+
+    @InjectView(R.id.etFax)
+    EditText etFax;
+
     @InjectView(R.id.rgSubscribe)
     RadioGroup rgSubscribe;
 
@@ -82,6 +113,16 @@ public class RegisterActivity extends AppCompatActivity {
 
     @InjectView(R.id.spRegionOrState)
     Spinner spRegionOrState;
+
+    @InjectView(R.id.countryProgressBar)
+    ProgressBar countryProgressBar;
+
+    @InjectView(R.id.regionOrStateProgressBar)
+    ProgressBar regionOrStateProgressBar;
+
+    private List<Country> countryList;
+    private List<State> stateList;
+    private RegisterPresenterImpl registerPresenter;
     InputFilter filter = new InputFilter() {
 
         @Override
@@ -101,36 +142,38 @@ public class RegisterActivity extends AppCompatActivity {
                         return "";
                 }
 
-            } else {
-
             }
             return null;
         }
     };
 
-    //    private Databasehelper db;
-    private String strFirstName = "", strLastName = "", strEmail = "", strTelephone = "",
-            strAddressOne = "", strAddressTwo = "", strCity = "", strPostalCode = "", strPassword = "",
-            strConfirmPassword = "", strSubscribe = "No", strCountry = "", strRegionOrState = "";
+    private String strSubscribe = "0";
+    private String strCountry = "";
+    private String strRegionOrState = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         ButterKnife.inject(this);
-
+        registerPresenter = new RegisterPresenterImpl(RegisterActivity.this, this);
 //        db = new Databasehelper(RegisterActivity.this);
         rgSubscribe.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int id) {
                 if (id == R.id.rdSubscribeYes) {
-                    strSubscribe = "Yes";
+                    strSubscribe = "1";
                 } else if (id == R.id.rdSubscribeNo) {
-                    strSubscribe = "No";
+                    strSubscribe = "0";
                 }
             }
         });
+        bas_in = new FlipVerticalSwingEnter();
+        bas_out = new FadeExit();
 
+        countryList = new ArrayList<>();
+        stateList = new ArrayList<>();
+        loadCountryAndState();
         etTelephone.setFilters(new InputFilter[]{filter});
         etFirstName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -186,7 +229,8 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-        etFirstName.addTextChangedListener(new TextWatcher() {
+
+        etEmail.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -194,26 +238,17 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-//                CharSequence charSequence = editable.toString()
-
-            }
-        });
-
-        etPassword.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-
+                String PASSWORD_PATTERN = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\\S+$).{8,}";
+                if (!charSequence.toString().matches(PASSWORD_PATTERN)) {
+                    int colors = Color.RED;
+                    String msg = getString(R.string.valid_email);
+                    ForegroundColorSpan span = new ForegroundColorSpan(colors);
+                    SpannableStringBuilder builder = new SpannableStringBuilder(msg);
+                    builder.setSpan(span, 0, msg.length(), 0);
+                    etEmail.setError(builder);
+                } else {
+                    etEmail.setError(null);
+                }
             }
 
             @Override
@@ -249,142 +284,240 @@ public class RegisterActivity extends AppCompatActivity {
 
             }
         });
-
-
     }
 
-    public boolean isValidPassword(final String password) {
+    private void loadCountryAndState() {
+        if (InternetConnection.checkConnection(RegisterActivity.this)) {
+            countryProgressBar.setVisibility(View.VISIBLE);
 
-        Pattern pattern;
-        Matcher matcher;
+            ApiService api = RetroClient.getApiService();
 
-        final String PASSWORD_PATTERN = "((?=.*\\\\d)(?=.*[a-z])(?=.*[A-Z]).{6,20})";
+            Call<String> call = api.getCountry();
+            call.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
 
-        pattern = Pattern.compile(PASSWORD_PATTERN);
-        matcher = pattern.matcher(password);
+                    Log.e(TAG, "onResponse: " + response.isSuccessful());
+                    if (response.isSuccessful()) {
+                        countryProgressBar.setVisibility(View.GONE);
+                        String json = response.body();
+                        parseJson(json);
+                    }
+                }
 
-        return matcher.matches();
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    Log.e(TAG, "onFailure: ");
+                    countryProgressBar.setVisibility(View.GONE);
+                }
+            });
+        }
+    }
+
+    private void parseJson(String json) {
+        try {
+            JSONObject jsonObject = new JSONObject(json);
+            JSONObject result = jsonObject.getJSONObject("result");
+            JSONObject rows = result.getJSONObject("rows");
+            for (int i = 0; i < rows.length() - 1; i++) {
+                JSONObject j = rows.getJSONObject("" + i);
+                Country c = new Country();
+                c.setId(j.optString(Country.COUNTRY_ID));
+                c.setName(j.optString(Country.COUNTRY_NAME));
+                countryList.add(c);
+            }
+
+            CountryAdapter adapter = new CountryAdapter(RegisterActivity.this,
+                    android.R.layout.simple_spinner_item, countryList);
+
+            Log.e(TAG, "parseJson: countryList " + countryList.size());
+            Log.e(TAG, "parseJson: countryList Adapter " + adapter.getCount());
+            adapter.setDropDownViewResource(android.R.layout.simple_selectable_list_item);
+            spCountry.setAdapter(adapter);
+            spCountry.setOnItemSelectedListener(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
     @OnClick(R.id.btnContinue)
     public void onContinuePressed() {
-        boolean isAllDataEntered = false;
-        strFirstName = etFirstName.getText().toString();
-        strLastName = etLastName.getText().toString();
-        strEmail = etEmail.getText().toString();
-        strTelephone = etTelephone.getText().toString();
-        strAddressOne = etAddressOne.getText().toString();
-        strAddressTwo = etAddressTwo.getText().toString();
-        strCity = etCity.getText().toString();
-        strPostalCode = etPostalCode.getText().toString();
-        strPassword = etPassword.getText().toString();
-        strConfirmPassword = etPasswordConfirm.getText().toString();
-        strCountry = spCountry.getSelectedItem().toString();
-        strRegionOrState = spRegionOrState.getSelectedItem().toString();
-
-        if (strFirstName != null && strFirstName.length() == 0) {
-            Snackbar.make(btnContinue, "Please Enter First Name", Snackbar.LENGTH_LONG).show();
-        } else if (strLastName != null && strLastName.length() == 0) {
-            Snackbar.make(btnContinue, "Please Enter Last Name", Snackbar.LENGTH_LONG).show();
-        } else if (strEmail != null && strEmail.length() == 0) {
-            Snackbar.make(btnContinue, "Please Enter Email", Snackbar.LENGTH_LONG).show();
-        } else if (strTelephone != null && strTelephone.length() == 0) {
-            Snackbar.make(btnContinue, "Please Enter Telephone or Mobile number", Snackbar.LENGTH_LONG).show();
-        } else if (strAddressOne != null && strAddressOne.length() == 0) {
-            Snackbar.make(btnContinue, "Please Enter Address", Snackbar.LENGTH_LONG).show();
-        } else if (strCity != null && strCity.length() == 0) {
-            Snackbar.make(btnContinue, "Please Enter City", Snackbar.LENGTH_LONG).show();
-        } else if (strPostalCode != null && strPostalCode.length() == 0) {
-            Snackbar.make(btnContinue, "Please Enter Postal Code", Snackbar.LENGTH_LONG).show();
-        } else if (strPassword != null && strPassword.length() == 0) {
-            Snackbar.make(btnContinue, "Please Enter Password", Snackbar.LENGTH_LONG).show();
-        } else if (strConfirmPassword != null && strConfirmPassword.length() == 0) {
-            Snackbar.make(btnContinue, "Please Enter Confirm Password", Snackbar.LENGTH_LONG).show();
-        } else if (strPassword != null && strConfirmPassword != null && !strPassword.equals(strConfirmPassword)) {
-            Snackbar.make(btnContinue, "Password and confirm password should be same.", Snackbar.LENGTH_LONG).show();
-        } else if (strCountry != null && strCountry.length() == 0) {
-            Snackbar.make(btnContinue, "Please Select Country", Snackbar.LENGTH_LONG).show();
-        } else if (strRegionOrState != null && strRegionOrState.length() == 0) {
-            Snackbar.make(btnContinue, "Please Select State", Snackbar.LENGTH_LONG).show();
-        } else if (strPassword != null && strPassword.length() < 8) {
-            String msg = "Password should be contain one lowercase letter, one uppercase letter and one number.";
-            Log.e(TAG, "onTextChanged: " + isValidPassword(strPassword));
-            if (isValidPassword(strPassword)) {
-                Log.e(TAG, "onTextChanged: inside if");
-                etPassword.setError(null);
-            } else {
-                int colors = Color.RED;
-                ForegroundColorSpan span = new ForegroundColorSpan(colors);
-                SpannableStringBuilder builder = new SpannableStringBuilder(msg);
-                builder.setSpan(span, 0, msg.length(), 0);
-                etPassword.setError(builder);
-            }
-            Snackbar.make(btnContinue, msg, Snackbar.LENGTH_LONG).show();
-        } else if (!chkPrivacyPolicy.isChecked()) {
-            Snackbar.make(btnContinue, "Please Agree terms and condition.", Snackbar.LENGTH_LONG).show();
-        } else {
-            isAllDataEntered = true;
-        }
-
-        boolean isValidEmail = Validation.setEmailError(etEmail, "Please enter valid email address.");
-//        Log.e(TAG, "onContinuePressed: isValidEmail " + isValidEmail + " isAllDataEntered " + isAllDataEntered);
-//        if (isAllDataEntered && isValidEmail) {
-//            boolean userExist = db.checkUser(strEmail);
-//            Log.e(TAG, "onContinuePressed: userExist " + userExist);
-//            if (!userExist) {
-//                Register reg = new Register();
-//                strFirstName = etFirstName.getText().toString();
-//                strLastName = etLastName.getText().toString();
-//                strEmail = etEmail.getText().toString();
-//                strTelephone = etTelephone.getText().toString();
-//                strAddressOne = etAddressOne.getText().toString();
-//                strAddressTwo = etAddressTwo.getText().toString();
-//                strCity = etCity.getText().toString();
-//                strPostalCode = etPostalCode.getText().toString();
-//                strPassword = etPassword.getText().toString();
-//                strConfirmPassword = etPasswordConfirm.getText().toString();
-//                strCountry = spCountry.getSelectedItem().toString();
-//                strRegionOrState = spRegionOrState.getSelectedItem().toString();
-//                reg.setFirstName(strFirstName);
-//                reg.setLastName(strLastName);
-//                reg.setTelephone(strTelephone);
-//                reg.setEmail(strEmail);
-//                reg.setAddressOne(strAddressOne);
-//                reg.setAddressTwo(strAddressTwo);
-//                reg.setCity(strCity);
-//                reg.setPostalCode(strPostalCode);
-//                reg.setPassword(strPassword);
-//                reg.setConfirmPassword(strConfirmPassword);
-//                reg.setCountry(strCountry);
-//                reg.setRegionOrState(strRegionOrState);
-//                reg.setSubscribe(strSubscribe);
-//                db.insert(reg);
-//                Snackbar.make(btnContinue, "Successfully registered!", Snackbar.LENGTH_LONG).show();
-//                clearAll();
-//            } else {
-//                Snackbar.make(btnContinue, "Username with current email id is already exists", Snackbar.LENGTH_SHORT).show();
-//            }
-//        }
+        registerPresenter.onRegisteredClicked();
     }
 
-    private void clearAll() {
-        etFirstName.setText("");
-        etLastName.setText("");
-        etEmail.setText("");
-        etTelephone.setText("");
-        etAddressOne.setText("");
-        etAddressTwo.setText("");
-        etPostalCode.setText("");
-        etCity.setText("");
-        etPassword.setText("");
-        etPasswordConfirm.setText("");
-        etPassword.setError(null);
-        etPasswordConfirm.setError(null);
-        spCountry.setSelection(0);
-        spRegionOrState.setSelection(0);
-        rdSubscribeNo.setChecked(true);
-        chkPrivacyPolicy.setChecked(false);
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long l) {
+
+        switch (parent.getId()) {
+            case R.id.spCountry:
+                Country country = (Country) parent.getItemAtPosition(position);
+                String id = country.getId();
+                String name = country.getName();
+                Log.e(TAG, "onItemSelected: id " + id + " name " + name);
+                loadStateFromCountryCode(id);
+                strCountry = id;
+                break;
+            case R.id.spRegionOrState:
+                State state = (State) parent.getItemAtPosition(position);
+                strRegionOrState = state.getId();
+                Log.e(TAG, "onItemSelected: state Id " + strRegionOrState);
+                break;
+        }
+    }
+
+    private void loadStateFromCountryCode(String id) {
+
+        if (InternetConnection.checkConnection(RegisterActivity.this)) {
+            regionOrStateProgressBar.setVisibility(View.VISIBLE);
+            ApiService api = RetroClient.getApiService();
+
+            Call<String> call = api.getStates(id);
+
+            call.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    regionOrStateProgressBar.setVisibility(View.GONE);
+                    Log.e(TAG, "onResponse: state " + response.isSuccessful());
+                    if (response.isSuccessful()) {
+                        Log.e(TAG, "onResponse: states list " + response.body());
+                        parseStateJson(response.body());
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    Log.e(TAG, "onFailure: State");
+                    regionOrStateProgressBar.setVisibility(View.GONE);
+                }
+            });
+        }
+    }
+
+    private void parseStateJson(String json) {
+        try {
+            stateList.clear();
+            JSONObject jsonObject = new JSONObject(json);
+            JSONObject result = jsonObject.getJSONObject("result");
+            JSONObject rows = result.getJSONObject("rows");
+            for (int i = 0; i < rows.length() - 1; i++) {
+                JSONObject j = rows.getJSONObject("" + i);
+                State s = new State();
+                s.setId(j.optString(State.STATE_ZONE_ID));
+                s.setName(j.optString(State.STATE_NAME));
+                stateList.add(s);
+            }
+
+            StateAdapter adapter = new StateAdapter(RegisterActivity.this,
+                    android.R.layout.simple_spinner_item, stateList);
+
+            Log.e(TAG, "parseJson: stateList " + stateList.size());
+            Log.e(TAG, "parseJson: stateList Adapter " + adapter.getCount());
+            adapter.setDropDownViewResource(android.R.layout.simple_selectable_list_item);
+            spRegionOrState.setAdapter(adapter);
+            spRegionOrState.setOnItemSelectedListener(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+
+    }
+
+    @Override
+    public Register getRegisterData() {
+        String strFirstName = etFirstName.getText().toString();
+        String strLastName = etLastName.getText().toString();
+        String strEmail = etEmail.getText().toString();
+        String strTelephone = etTelephone.getText().toString();
+        String strAddressOne = etAddressOne.getText().toString();
+        String strAddressTwo = etAddressTwo.getText().toString();
+        String strCity = etCity.getText().toString();
+        String strPostalCode = etPostalCode.getText().toString();
+        String strPassword = etPassword.getText().toString();
+        String strConfirmPassword = etPasswordConfirm.getText().toString();
+        String strBusinessName = etBusinessName.getText().toString();
+        String strFax = etFax.getText().toString();
+
+        Register register = new Register();
+        register.setFirstName(strFirstName);
+        register.setLastName(strLastName);
+        register.setEmail(strEmail);
+        register.setTelephone(strTelephone);
+        register.setAddressOne(strAddressOne);
+        register.setAddressTwo(strAddressTwo);
+        register.setCity(strCity);
+        register.setPostalCode(strPostalCode);
+        register.setPassword(strPassword);
+        register.setBusinessName(strBusinessName);
+        register.setFax(strFax);
+        register.setCountry(strCountry);
+        register.setRegionOrState(strRegionOrState);
+        register.setConfirmPassword(strConfirmPassword);
+        register.setSubscribe(strSubscribe);
+
+        return register;
+    }
+
+    @Override
+    public void showError(int resId) {
+        showSnackBar(resId);
+    }
+
+    @Override
+    public void showError(String msg) {
+        showSnackBar(msg);
+    }
+
+    @Override
+    public void startActivity() {
+        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+        startActivity(intent);
         RegisterActivity.this.finish();
+    }
+
+    @Override
+    public void showDialog(String msg) {
+        showSuccessDialog(msg);
+    }
+
+    private void showSnackBar(int resId) {
+        Snackbar.make(btnContinue, resId, Snackbar.LENGTH_SHORT).show();
+    }
+
+    private void showSnackBar(String resId) {
+        Snackbar.make(btnContinue, resId, Snackbar.LENGTH_SHORT).show();
+    }
+
+    private void showSuccessDialog(String msg) {
+
+        final MaterialDialog dialog = new MaterialDialog(RegisterActivity.this);
+        OnBtnClickL onBtnClickL1 = new OnBtnClickL() {
+            @Override
+            public void onBtnClick() {
+                dialog.dismiss();
+                startActivity();
+            }
+        };
+
+        OnBtnClickL onBtnClickL2 = new OnBtnClickL() {
+            @Override
+            public void onBtnClick() {
+                dialog.superDismiss();
+            }
+        };
+
+
+        OnBtnClickL[] clickLs = new OnBtnClickL[]{onBtnClickL2,onBtnClickL1};
+        dialog.setOnBtnClickL(clickLs);
+        dialog.isTitleShow(false)
+                .content(msg)
+                .btnText("Okay","")
+                .showAnim(bas_in)
+                .dismissAnim(bas_out)
+                .show();
+
     }
 }
