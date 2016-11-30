@@ -158,6 +158,7 @@ public class MainActivity extends AppCompatActivity
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnPayNow:
+                startActivity(PurchaseTimeActivity.class);
                 break;
             case R.id.btnPayLater:
                 startActivity(PlacesActivity.class);

@@ -13,8 +13,8 @@ public interface ApiService {
     @GET("web-services.php?web_method=getState")
     Call<String> getStates(@Query("country_id") String id);
 
-//    @GET("web-services.php?web_method=login")
-//    Call<String> doLogin(@Query("email") String email, @Query("password") String password);
+    @GET("web-services.php?web_method=login")
+    Call<String> doLogin(@Query("email") String email, @Query("password") String password);
 
     @POST("web-services.php?web_method=signup")
     Call<String> doSignUp(@Query("email") String email, @Query("password") String password,

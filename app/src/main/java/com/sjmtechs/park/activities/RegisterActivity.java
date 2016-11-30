@@ -12,6 +12,7 @@ import android.text.Spanned;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -157,7 +158,6 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         setContentView(R.layout.activity_register);
         ButterKnife.inject(this);
         registerPresenter = new RegisterPresenterImpl(RegisterActivity.this, this);
-//        db = new Databasehelper(RegisterActivity.this);
         rgSubscribe.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int id) {
@@ -238,8 +238,7 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                String PASSWORD_PATTERN = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\\S+$).{8,}";
-                if (!charSequence.toString().matches(PASSWORD_PATTERN)) {
+                if (!Patterns.EMAIL_ADDRESS.matcher(charSequence).matches()) {
                     int colors = Color.RED;
                     String msg = getString(R.string.valid_email);
                     ForegroundColorSpan span = new ForegroundColorSpan(colors);
@@ -509,7 +508,6 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
             }
         };
 
-
         OnBtnClickL[] clickLs = new OnBtnClickL[]{onBtnClickL2,onBtnClickL1};
         dialog.setOnBtnClickL(clickLs);
         dialog.isTitleShow(false)
@@ -518,6 +516,5 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
                 .showAnim(bas_in)
                 .dismissAnim(bas_out)
                 .show();
-
     }
 }

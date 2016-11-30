@@ -3,6 +3,7 @@ package com.sjmtechs.park.register;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Patterns;
 
 import com.sjmtechs.park.R;
 import com.sjmtechs.park.model.Register;
@@ -35,7 +36,6 @@ public class RegisterPresenterImpl implements RegisterPresenter {
     public void onRegisteredClicked() {
 
         Register register = registerView.getRegisterData();
-        Log.e(TAG, "onRegisteredClicked: " + register.toString());
         if (TextUtils.isEmpty(register.getFirstName())) {
             registerView.showError(R.string.please_enter_first_name);
             return;
@@ -48,7 +48,12 @@ public class RegisterPresenterImpl implements RegisterPresenter {
 
         if (TextUtils.isEmpty(register.getEmail())) {
             registerView.showError(R.string.please_email);
-            return;
+        } else {
+            Log.e(TAG, "onRegisteredClicked: Email Validation IN " + Patterns.EMAIL_ADDRESS.matcher(register.getEmail()).matches());
+            if(!Patterns.EMAIL_ADDRESS.matcher(register.getEmail()).matches()){
+                registerView.showError(R.string.valid_email);
+                return;
+            }
         }
 
         if (TextUtils.isEmpty(register.getTelephone())) {
@@ -98,7 +103,7 @@ public class RegisterPresenterImpl implements RegisterPresenter {
             String phone = register.getTelephone();
             String p = phone.replace("(","").replace(" ", "").replace(")", "").replace("-", "");
             Log.e(TAG, "onRegisteredClicked: phone " + p);
-            Call<String> call = api.doSignUp(encode(register.getEmail()), register.getPassword(), encode(register.getFirstName()),
+            Call<String> call = api.doSignUp(register.getEmail().trim(), register.getPassword(), encode(register.getFirstName()),
                     encode(register.getLastName()), encode(register.getBusinessName()), encode(register.getAddressOne()),
                     encode(register.getAddressTwo()), encode(register.getCity()), encode(register.getRegionOrState()),
                     encode(register.getPostalCode()), encode(register.getCountry()), encode(p),
