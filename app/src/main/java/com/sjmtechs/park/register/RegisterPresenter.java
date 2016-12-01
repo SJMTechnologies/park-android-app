@@ -7,4 +7,5 @@ package com.sjmtechs.park.register;
 public interface RegisterPresenter {
 
     void onRegisteredClicked();
+    void setDataForUpdate();
 }

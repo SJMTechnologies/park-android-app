@@ -9,4 +9,7 @@ public interface RegisterView {
     void showError(String msg);
     void startActivity();
     void showDialog(String msg);
+    void showProgressDialog();
+    void hideProgressDialog();
+    void setUpdateData(Register register);
 }

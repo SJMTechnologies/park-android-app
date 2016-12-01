@@ -5,6 +5,8 @@
     android:layout_height="match_parent"
     android:layout_margin="10dp"
     android:background="@android:color/white"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:orientation="vertical">
     <TextView
         android:id="@+id/txtYourPersonalDetails"
@@ -33,6 +35,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/txtFirstName"
             android:layout_marginLeft="5dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:hint="@string/first_name"
             android:maxLength="30"
             android:textAllCaps="false"
@@ -109,9 +113,9 @@
     </android.support.design.widget.TextInputLayout>
     <TextView
         android:id="@+id/txtYourAddress"
-        android:layout_below="@+id/textInputBusiness"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/textInputBusiness"
         android:padding="10dp"
         android:text="@string/you_address"
         android:textColor="@android:color/black"

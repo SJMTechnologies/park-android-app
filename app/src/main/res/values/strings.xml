@@ -44,6 +44,8 @@
     <string name="password_same">Password and confirm password should be same.</string>
     <string name="connect_internet">Please connect to working internet.</string>
     <string name="valid_email">Please enter valid email address</string>
+    <string name="log_out">Logging Out...</string>
+    <string name="please_wait">Please wait...</string>
     <string name="password_message">Password should be contain one lowercase letter, one uppercase letter and one number.</string>
 
     <string-array name="country">
@@ -90,4 +92,5 @@
         transaction
     </string>
     <string name="business_name">Business Name</string>
+    <string name="my_account">My Account</string>
 </resources>

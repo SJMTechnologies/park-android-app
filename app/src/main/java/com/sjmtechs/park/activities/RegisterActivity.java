@@ -1,9 +1,11 @@
 package com.sjmtechs.park.activities;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -22,12 +24,14 @@ import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.flyco.animation.BaseAnimatorSet;
 import com.flyco.animation.FadeExit.FadeExit;
 import com.flyco.animation.FlipEnter.FlipVerticalSwingEnter;
 import com.flyco.dialog.listener.OnBtnClickL;
 import com.flyco.dialog.widget.MaterialDialog;
+import com.sjmtechs.park.ParkApp;
 import com.sjmtechs.park.R;
 import com.sjmtechs.park.adapter.CountryAdapter;
 import com.sjmtechs.park.adapter.StateAdapter;
@@ -54,8 +58,9 @@ import retrofit2.Response;
 
 public class RegisterActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, RegisterView {
 
-
     private static final String TAG = RegisterActivity.class.getSimpleName();
+    private ProgressDialog pd;
+
     BaseAnimatorSet bas_in;
     BaseAnimatorSet bas_out;
     @InjectView(R.id.etFirstName)
@@ -121,6 +126,20 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
     @InjectView(R.id.regionOrStateProgressBar)
     ProgressBar regionOrStateProgressBar;
 
+    @InjectView(R.id.textInputPassword)
+    TextInputLayout textInputPassword;
+
+    @InjectView(R.id.textInputConfirmPassword)
+    TextInputLayout textInputConfirmPassword;
+
+    @InjectView(R.id.txtYourPassword)
+    TextView txtYourPassword;
+
+    @InjectView(R.id.viewThree)
+    View viewThree;
+
+    String countryId = "", stateId = "";
+
     private List<Country> countryList;
     private List<State> stateList;
     private RegisterPresenterImpl registerPresenter;
@@ -166,6 +185,8 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
                 } else if (id == R.id.rdSubscribeNo) {
                     strSubscribe = "0";
                 }
+
+                Log.e(TAG, "onCheckedChanged: " + strSubscribe);
             }
         });
         bas_in = new FlipVerticalSwingEnter();
@@ -175,6 +196,17 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         stateList = new ArrayList<>();
         loadCountryAndState();
         etTelephone.setFilters(new InputFilter[]{filter});
+        boolean isUpdate = ParkApp.preferences.getIsUpdate();
+        if(isUpdate){
+            registerPresenter.setDataForUpdate();
+            etPassword.setVisibility(View.GONE);
+            etPasswordConfirm.setVisibility(View.GONE);
+            textInputPassword.setVisibility(View.GONE);
+            textInputConfirmPassword.setVisibility(View.GONE);
+            txtYourPassword.setVisibility(View.GONE);
+            viewThree.setVisibility(View.GONE);
+        }
+
         etFirstName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
@@ -333,6 +365,18 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
             Log.e(TAG, "parseJson: countryList Adapter " + adapter.getCount());
             adapter.setDropDownViewResource(android.R.layout.simple_selectable_list_item);
             spCountry.setAdapter(adapter);
+            if(ParkApp.preferences.getIsUpdate()){
+                int index = 0;
+                for(int i = 0; i < countryList.size(); i++){
+                    if(countryList.get(i).getId().equals(countryId)){
+                        index = i;
+                        break;
+                    }
+                }
+
+                Log.e(TAG, "setUpdateData: index " + index);
+                spCountry.setSelection(index);
+            }
             spCountry.setOnItemSelectedListener(this);
         } catch (Exception e) {
             e.printStackTrace();
@@ -415,6 +459,17 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
             adapter.setDropDownViewResource(android.R.layout.simple_selectable_list_item);
             spRegionOrState.setAdapter(adapter);
             spRegionOrState.setOnItemSelectedListener(this);
+            if(ParkApp.preferences.getIsUpdate()){
+                int index = 0;
+                for(int i = 0; i < stateList.size(); i++){
+                    if(stateList.get(i).getId().equals(stateId)){
+                        index = i;
+                        break;
+                    }
+                }
+                Log.e(TAG, "setUpdateData: index spRegionOrState " + index);
+                spRegionOrState.setSelection(index);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -482,6 +537,48 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         showSuccessDialog(msg);
     }
 
+    @Override
+    public void showProgressDialog() {
+        pd = new ProgressDialog(RegisterActivity.this);
+        pd.setMessage(getString(R.string.please_wait));
+        pd.setIndeterminate(false);
+        pd.setCancelable(false);
+        pd.setCanceledOnTouchOutside(false);
+        pd.show();
+    }
+
+    @Override
+    public void hideProgressDialog() {
+        if(pd.isShowing()){
+            pd.dismiss();
+        }
+    }
+
+    @Override
+    public void setUpdateData(Register register) {
+        etTelephone.setFilters(new InputFilter[]{});
+        etFirstName.setText(register.getFirstName());
+        etLastName.setText(register.getLastName());
+        etEmail.setText(register.getEmail());
+        etTelephone.setText(register.getTelephone());
+        etBusinessName.setText(register.getBusinessName());
+        etAddressOne.setText(register.getAddressOne());
+        etAddressTwo.setText(register.getAddressTwo());
+        etCity.setText(register.getCity());
+        etPostalCode.setText(register.getPostalCode());
+        etFax.setText(register.getFax());
+        etTelephone.setFilters(new InputFilter[]{filter});
+        Log.e(TAG, "setUpdateData: register.getSubscribe() " + register.getSubscribe());
+        if(register.getSubscribe().equals("1")){
+            rdSubscribeYes.setSelected(true);
+        } else {
+            rdSubscribeNo.setSelected(true);
+        }
+
+        countryId = register.getCountry();
+        stateId = register.getRegionOrState();
+    }
+
     private void showSnackBar(int resId) {
         Snackbar.make(btnContinue, resId, Snackbar.LENGTH_SHORT).show();
     }
@@ -492,12 +589,12 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
 
     private void showSuccessDialog(String msg) {
 
+        Log.e(TAG, "showSuccessDialog: ");
         final MaterialDialog dialog = new MaterialDialog(RegisterActivity.this);
         OnBtnClickL onBtnClickL1 = new OnBtnClickL() {
             @Override
             public void onBtnClick() {
                 dialog.dismiss();
-                startActivity();
             }
         };
 
@@ -505,6 +602,14 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
             @Override
             public void onBtnClick() {
                 dialog.superDismiss();
+                Intent intent;
+                if(ParkApp.preferences.getIsUpdate()){
+                    intent = new Intent(RegisterActivity.this, MainActivity.class);
+                } else {
+                    intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                }
+                startActivity(intent);
+                RegisterActivity.this.finish();
             }
         };
 

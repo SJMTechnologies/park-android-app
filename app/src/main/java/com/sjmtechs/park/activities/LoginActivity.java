@@ -1,7 +1,7 @@
 package com.sjmtechs.park.activities;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
@@ -34,6 +34,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.sjmtechs.park.R;
+import com.sjmtechs.park.login.LoginPresenterImpl;
+import com.sjmtechs.park.login.LoginView;
 
 import org.json.JSONObject;
 
@@ -45,11 +47,12 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener{
+        GoogleApiClient.OnConnectionFailedListener, LoginView{
 
     private static final String TAG = LoginActivity.class.getSimpleName();
     private static final int RC_SIGN_IN = 0x1;
 
+    private ProgressDialog pd;
     //email
     @InjectView(R.id.etEmail)
     EditText etEmail;
@@ -69,13 +72,12 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     @InjectView(R.id.btnGooglePlus)
     ImageView btnGooglePlus;
 
-    SharedPreferences pref;
-    private String strEmail = "", strPassword = "";
 //    private Databasehelper db;
 
     private CallbackManager mCallBackManager;
     private LoginManager loginManager;
     private GoogleApiClient mGoogleApiClient;
+    private LoginPresenterImpl loginPresenterImpl;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,7 +85,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         setContentView(R.layout.activity_login);
         ButterKnife.inject(this);
         printKeyHash();
-//        db = new Databasehelper(LoginActivity.this);
 //        pref = getSharedPreferences(Constant.PREF_NAME, 0);
 //        boolean isLoggedIn = pref.getBoolean(Constant.USER_LOGIN, false);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -96,6 +97,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 //        if (isLoggedIn) {
 //            startActivity(new Intent(LoginActivity.this, MainActivity.class));
 //        }
+
+        loginPresenterImpl = new LoginPresenterImpl(LoginActivity.this,this);
     }
 
     public void printKeyHash() {
@@ -109,7 +112,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
             }
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
     }
 
@@ -120,18 +123,18 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     @OnClick(R.id.btnLogin)
     public void onLogin() {
-        boolean isAllDataEntered = false;
+//        boolean isAllDataEntered = false;
 
-        strEmail = etEmail.getText().toString();
-        strPassword = etPassword.getText().toString();
-        if (strEmail != null && strEmail.length() == 0) {
-            Snackbar.make(btnLogin, "Please enter email address.", Snackbar.LENGTH_SHORT).show();
-        } else if (strPassword != null && strPassword.length() == 0) {
-            Snackbar.make(btnLogin, "Please enter password.", Snackbar.LENGTH_SHORT).show();
-        } else {
-            isAllDataEntered = true;
-        }
-        Log.e(TAG, "onLogin: " + isAllDataEntered);
+//        strEmail = etEmail.getText().toString();
+//        strPassword = etPassword.getText().toString();
+//        if (strEmail != null && strEmail.length() == 0) {
+//            Snackbar.make(btnLogin, R.string.please_enter_email, Snackbar.LENGTH_SHORT).show();
+//        } else if (strPassword != null && strPassword.length() == 0) {
+//            Snackbar.make(btnLogin, R.string.please_enter_password, Snackbar.LENGTH_SHORT).show();
+//        } else {
+//            isAllDataEntered = true;
+//        }
+//        Log.e(TAG, "onLogin: " + isAllDataEntered);
 //        if (isAllDataEntered) {
 //            boolean isUserExists = db.checkLoginUser(strEmail, strPassword);
 //            if (isUserExists) {
@@ -142,10 +145,12 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 //                pref.edit().putBoolean(Constant.USER_LOGIN, true).putString(Constant.USER_NAME, username).apply();
 //                startActivity(new Intent(LoginActivity.this, MainActivity.class));
 //            } else {
-//                Snackbar.make(btnLogin, "Username or password is incorrect", Snackbar.LENGTH_SHORT).show();
+//                Snackbar.make(btnLogin, "", Snackbar.LENGTH_SHORT).show();
 //                pref.edit().putBoolean(Constant.USER_LOGIN, false).apply();
 //            }
 //        }
+
+        loginPresenterImpl.onLoginClicked();
     }
 
 //    @OnClick(R.id.btnFacebook)
@@ -251,5 +256,56 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
+    }
+
+    @Override
+    public String getUsername() {
+        return etEmail.getText().toString();
+    }
+
+    @Override
+    public String getPassword() {
+        return etPassword.getText().toString();
+    }
+
+    @Override
+    public void showUsernameError(int resId) {
+        etEmail.setError(getString(resId));
+        etEmail.requestFocus();
+    }
+
+    @Override
+    public void showPasswordError(int resId) {
+        etPassword.setError(getString(resId));
+        etPassword.requestFocus();
+    }
+
+    @Override
+    public void showSnackBar(String resId) {
+        Snackbar.make(btnLogin, resId, Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void navigateToHome() {
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(intent);
+        LoginActivity.this.finish();
+    }
+
+    @Override
+    public void showProgressDialog() {
+        pd = new ProgressDialog(LoginActivity.this);
+        pd.setMessage(getString(R.string.please_wait));
+        pd.setIndeterminate(false);
+        pd.setCancelable(false);
+        pd.setCanceledOnTouchOutside(false);
+        pd.show();
+    }
+
+    @Override
+    public void hideProgressDialog() {
+        if(pd.isShowing()){
+            pd.dismiss();
+        }
     }
 }

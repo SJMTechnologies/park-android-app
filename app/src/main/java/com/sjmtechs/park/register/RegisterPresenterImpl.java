@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Patterns;
 
+import com.sjmtechs.park.ParkApp;
 import com.sjmtechs.park.R;
 import com.sjmtechs.park.model.Register;
 import com.sjmtechs.park.retrofit.ApiService;
@@ -13,9 +14,6 @@ import com.sjmtechs.park.utils.InternetConnection;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -34,7 +32,7 @@ public class RegisterPresenterImpl implements RegisterPresenter {
 
     @Override
     public void onRegisteredClicked() {
-
+        boolean isUpdate = ParkApp.preferences.getIsUpdate();
         Register register = registerView.getRegisterData();
         if (TextUtils.isEmpty(register.getFirstName())) {
             registerView.showError(R.string.please_enter_first_name);
@@ -50,7 +48,7 @@ public class RegisterPresenterImpl implements RegisterPresenter {
             registerView.showError(R.string.please_email);
         } else {
             Log.e(TAG, "onRegisteredClicked: Email Validation IN " + Patterns.EMAIL_ADDRESS.matcher(register.getEmail()).matches());
-            if(!Patterns.EMAIL_ADDRESS.matcher(register.getEmail()).matches()){
+            if (!Patterns.EMAIL_ADDRESS.matcher(register.getEmail()).matches()) {
                 registerView.showError(R.string.valid_email);
                 return;
             }
@@ -76,42 +74,57 @@ public class RegisterPresenterImpl implements RegisterPresenter {
             return;
         }
 
-        if (TextUtils.isEmpty(register.getPassword())) {
-            registerView.showError(R.string.please_enter_password);
-            return;
-        } else {
-            String PASSWORD_PATTERN = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\\S+$).{8,}";
-            if (!register.getPassword().matches(PASSWORD_PATTERN)) {
-                registerView.showError(R.string.password_message);
+        if (!isUpdate) {
+            if (TextUtils.isEmpty(register.getPassword())) {
+                registerView.showError(R.string.please_enter_password);
+                return;
+            } else {
+                String PASSWORD_PATTERN = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\\S+$).{8,}";
+                if (!register.getPassword().matches(PASSWORD_PATTERN)) {
+                    registerView.showError(R.string.password_message);
+                    return;
+                }
+            }
+
+            if (TextUtils.isEmpty(register.getConfirmPassword())) {
+                registerView.showError(R.string.please_enter_confirm_password);
+                return;
+            }
+
+            if (!TextUtils.isEmpty(register.getPassword()) && !TextUtils.isEmpty(register.getConfirmPassword()) &&
+                    !register.getPassword().equals(register.getConfirmPassword())) {
+                registerView.showError(R.string.password_same);
                 return;
             }
         }
 
-        if (TextUtils.isEmpty(register.getConfirmPassword())) {
-            registerView.showError(R.string.please_enter_confirm_password);
-            return;
-        }
-
-        if (!TextUtils.isEmpty(register.getPassword()) && !TextUtils.isEmpty(register.getConfirmPassword()) &&
-                !register.getPassword().equals(register.getConfirmPassword())) {
-            registerView.showError(R.string.password_same);
-            return;
-        }
-
         if (InternetConnection.checkConnection(context)) {
+            registerView.showProgressDialog();
             ApiService api = RetroClient.getApiService();
             String phone = register.getTelephone();
-            String p = phone.replace("(","").replace(" ", "").replace(")", "").replace("-", "");
-            Log.e(TAG, "onRegisteredClicked: phone " + p);
-            Call<String> call = api.doSignUp(register.getEmail().trim(), register.getPassword(), encode(register.getFirstName()),
-                    encode(register.getLastName()), encode(register.getBusinessName()), encode(register.getAddressOne()),
-                    encode(register.getAddressTwo()), encode(register.getCity()), encode(register.getRegionOrState()),
-                    encode(register.getPostalCode()), encode(register.getCountry()), encode(p),
-                    encode(register.getFax()), encode(register.getSubscribe()));
+            String p = phone.replace("(", "").replace(" ", "").replace(")", "").replace("-", "");
+            Log.e(TAG, "onRegisteredClicked: getSubscribe " + register.getSubscribe());
+            Call<String> call;
+            Log.e(TAG, "onRegisteredClicked: isUpdate " + isUpdate);
+            if (isUpdate) {
+                String authToken = ParkApp.preferences.getAuthToken();
+                call = api.updateProfile(authToken, register.getEmail().trim(), register.getFirstName(),
+                        register.getLastName(), register.getBusinessName(), register.getAddressOne(),
+                        register.getAddressTwo(), register.getCity(), register.getRegionOrState(),
+                        register.getPostalCode(), register.getCountry(), p,
+                        register.getFax(), register.getSubscribe());
+            } else {
+                call = api.doSignUp(register.getEmail().trim(), register.getPassword(), register.getFirstName(),
+                        register.getLastName(), register.getBusinessName(), register.getAddressOne(),
+                        register.getAddressTwo(), register.getCity(), register.getRegionOrState(),
+                        register.getPostalCode(), register.getCountry(), p,
+                        register.getFax(), register.getSubscribe());
+            }
 
             call.enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(Call<String> call, Response<String> response) {
+                    registerView.hideProgressDialog();
                     Log.e(TAG, "onResponse: Error " + response.message());
                     Log.e(TAG, "onResponse: body " + response.body());
                     parseJson(response.body());
@@ -119,11 +132,69 @@ public class RegisterPresenterImpl implements RegisterPresenter {
 
                 @Override
                 public void onFailure(Call<String> call, Throwable t) {
-                    Log.e(TAG, "onFailure: ");
+                    Log.e(TAG, "onFailure: " + t.getMessage());
+                    registerView.hideProgressDialog();
                 }
             });
         } else {
             registerView.showError(R.string.connect_internet);
+        }
+    }
+
+    @Override
+    public void setDataForUpdate() {
+        if(InternetConnection.checkConnection(context)){
+            registerView.showProgressDialog();
+            String authToken = ParkApp.preferences.getAuthToken();
+            ApiService api = RetroClient.getApiService();
+            Call<String> call = api.getProfile(authToken);
+
+            call.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    registerView.hideProgressDialog();
+                    Log.e(TAG, "onResponse: setDataForUpdate " + response.body());
+                    getProfileFromJson(response.body());
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+
+                    Log.e(TAG, "onFailure: setDataForUpdate" + t.getMessage());
+                }
+            });
+        } else {
+            registerView.showError(R.string.connect_internet);
+        }
+
+    }
+
+    private void getProfileFromJson(String response) {
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONObject result = jsonObject.getJSONObject("result");
+            JSONObject rows = result.getJSONObject("rows");
+            String code = rows.optString("code");
+            if (code.equals("1")) {
+                JSONObject j = rows.getJSONObject("0");
+                Log.e(TAG, "getProfileFromJson: j " + j.toString());
+                Register register = new Register();
+                register.setFirstName(j.optString("firstname"));
+                register.setLastName(j.optString("lastname"));
+                register.setAddressOne(j.optString("address_1"));
+                register.setAddressTwo(j.optString("address_2"));
+                register.setCity(j.optString("city"));
+                register.setRegionOrState(j.optString("state_id"));
+                register.setCountry(j.optString("country_id"));
+                register.setPostalCode(j.optString("postcode"));
+                register.setEmail(j.optString("email"));
+                register.setTelephone(j.optString("telephone"));
+                register.setFax(j.optString("fax"));
+                register.setSubscribe(j.optString("newsletter"));
+                registerView.setUpdateData(register);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -136,6 +207,7 @@ public class RegisterPresenterImpl implements RegisterPresenter {
                 String code = result.optString("code");
                 String msg = result.optString("message");
                 Log.e(TAG, "parseJson: response " + jsonObject.toString());
+                Log.e(TAG, "parseJson: response code " + code);
                 if (code.equals("1")) {
                     registerView.showDialog(msg);
                 } else {
@@ -149,12 +221,4 @@ public class RegisterPresenterImpl implements RegisterPresenter {
         }
     }
 
-    private String encode(String s){
-        try {
-            return URLEncoder.encode(s,"UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return "";
-        }
-    }
 }

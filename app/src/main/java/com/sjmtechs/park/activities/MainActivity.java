@@ -1,5 +1,6 @@
 package com.sjmtechs.park.activities;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,6 +16,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -25,18 +27,27 @@ import com.flyco.animation.FadeExit.FadeExit;
 import com.flyco.animation.FlipEnter.FlipVerticalSwingEnter;
 import com.flyco.dialog.listener.OnBtnClickL;
 import com.flyco.dialog.widget.MaterialDialog;
+import com.sjmtechs.park.ParkApp;
 import com.sjmtechs.park.R;
+import com.sjmtechs.park.retrofit.ApiService;
+import com.sjmtechs.park.retrofit.RetroClient;
+import com.sjmtechs.park.utils.InternetConnection;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 @SuppressWarnings("deprecation")
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
+    private static final String TAG = "MainActivity";
     private static final int PERMISSION_REQUEST_CODE = 0x1;
     private static final int LOCATION_REQUEST = 0x2;
 
+    private ProgressDialog pd;
     @InjectView(R.id.btnPayNow)
     Button btnPayNow;
 
@@ -113,12 +124,11 @@ public class MainActivity extends AppCompatActivity
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         MenuItem loginItem = navigationView.getMenu().getItem(1);
-//        isLoggedIn = pref.getBoolean(Constant.USER_LOGIN,false);
-//        if(isLoggedIn){
+        if(ParkApp.preferences.getAuthToken().length() > 0){
+            loginItem.setTitle("Logout");
+        } else {
             loginItem.setTitle("Login");
-//        } else {
-//            loginItem.setTitle("Login");
-//        }
+        }
     }
 
     @Override
@@ -139,19 +149,64 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_register) {
             navigationView.setCheckedItem(NavigationView.NO_ID);
+            ParkApp.preferences.setIsUpdate(false);
             startActivity(RegisterActivity.class);
         } else if (id == R.id.nav_login) {
-//            if(isLoggedIn){
-//                pref.edit().putBoolean(Constant.USER_LOGIN,false).apply();
-//                MainActivity.this.finish();
-//            } else {
+            if(ParkApp.preferences.getAuthToken().length() > 0){
+                logOut(ParkApp.preferences.getAuthToken());
+            } else {
                 startActivity(LoginActivity.class);
-//            }
+            }
+        } else if(id == R.id.nav_my_account){
+            ParkApp.preferences.setIsUpdate(true);
+            startActivity(RegisterActivity.class);
+            MainActivity.this.finish();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void showProgressDialog() {
+        pd = new ProgressDialog(MainActivity.this);
+        pd.setMessage(getString(R.string.log_out));
+        pd.setIndeterminate(false);
+        pd.setCancelable(false);
+        pd.setCanceledOnTouchOutside(false);
+        pd.show();
+    }
+
+    public void hideProgressDialog() {
+        if(pd.isShowing()){
+            pd.dismiss();
+        }
+    }
+    private void logOut(String authToken) {
+        if(InternetConnection.checkConnection(MainActivity.this)){
+            showProgressDialog();
+            ApiService api = RetroClient.getApiService();
+            Call<String> call = api.logOut(authToken);
+
+            call.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    hideProgressDialog();
+                    ParkApp.preferences.clear();
+                    Log.e(TAG, "onResponse: " + response.body());
+
+                    Intent intent = new Intent(MainActivity.this,LoginActivity.class);
+                    startActivity(intent);
+                    MainActivity.this.finish();
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    hideProgressDialog();
+                    Log.e(TAG, "onFailure: " + t.getMessage());
+                }
+            });
+        }
     }
 
     @Override
