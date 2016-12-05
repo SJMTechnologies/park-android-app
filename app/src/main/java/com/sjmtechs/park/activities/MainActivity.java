@@ -161,6 +161,8 @@ public class MainActivity extends AppCompatActivity
             ParkApp.preferences.setIsUpdate(true);
             startActivity(RegisterActivity.class);
             MainActivity.this.finish();
+        } else if(id == R.id.nav_my_pref){
+            startActivity(ParkPreferencesActivity.class);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

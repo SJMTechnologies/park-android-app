@@ -159,14 +159,12 @@ public class RegisterPresenterImpl implements RegisterPresenter {
 
                 @Override
                 public void onFailure(Call<String> call, Throwable t) {
-
                     Log.e(TAG, "onFailure: setDataForUpdate" + t.getMessage());
                 }
             });
         } else {
             registerView.showError(R.string.connect_internet);
         }
-
     }
 
     private void getProfileFromJson(String response) {

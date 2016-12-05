@@ -1,5 +1,5 @@
 <resources>
-    <string name="facebook_app_id">1779229595659006</string>
+    <string name="facebook_app_id">1751916218404017</string>
     <string name="app_name">Park</string>
     <string name="park_now">Park Now</string>
     <string name="park_later">Park Later</string>
@@ -93,4 +93,5 @@
     </string>
     <string name="business_name">Business Name</string>
     <string name="my_account">My Account</string>
+    <string name="preference">Preference</string>
 </resources>

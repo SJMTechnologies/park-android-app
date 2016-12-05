@@ -5,13 +5,16 @@
         <item
             android:id="@+id/nav_register"
             android:title="@string/create_new_account"/>
-        <item
-            android:id="@+id/nav_login"
-            android:title="@string/login"/>
 
         <item
             android:id="@+id/nav_my_account"
             android:title="@string/my_account"/>
+        <item
+            android:id="@+id/nav_my_pref"
+            android:title="@string/preference"/>
+        <item
+            android:id="@+id/nav_login"
+            android:title="@string/login"/>
     </group>
 
     <!--<item android:title="Communicate">

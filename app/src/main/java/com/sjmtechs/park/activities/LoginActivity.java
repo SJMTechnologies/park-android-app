@@ -123,41 +123,14 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     @OnClick(R.id.btnLogin)
     public void onLogin() {
-//        boolean isAllDataEntered = false;
-
-//        strEmail = etEmail.getText().toString();
-//        strPassword = etPassword.getText().toString();
-//        if (strEmail != null && strEmail.length() == 0) {
-//            Snackbar.make(btnLogin, R.string.please_enter_email, Snackbar.LENGTH_SHORT).show();
-//        } else if (strPassword != null && strPassword.length() == 0) {
-//            Snackbar.make(btnLogin, R.string.please_enter_password, Snackbar.LENGTH_SHORT).show();
-//        } else {
-//            isAllDataEntered = true;
-//        }
-//        Log.e(TAG, "onLogin: " + isAllDataEntered);
-//        if (isAllDataEntered) {
-//            boolean isUserExists = db.checkLoginUser(strEmail, strPassword);
-//            if (isUserExists) {
-//                etEmail.setText("");
-//                etPassword.setText("");
-//                String username = db.getUsername(strEmail);
-//                Snackbar.make(btnLogin, "Login Successfully done !", Snackbar.LENGTH_SHORT).show();
-//                pref.edit().putBoolean(Constant.USER_LOGIN, true).putString(Constant.USER_NAME, username).apply();
-//                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-//            } else {
-//                Snackbar.make(btnLogin, "", Snackbar.LENGTH_SHORT).show();
-//                pref.edit().putBoolean(Constant.USER_LOGIN, false).apply();
-//            }
-//        }
-
         loginPresenterImpl.onLoginClicked();
     }
 
-//    @OnClick(R.id.btnFacebook)
-//    public void onFacebookPressed(){
-//        Log.e(TAG, "onFacebookPressed: ");
-//        facebookLogin();
-//    }
+    @OnClick(R.id.btnFacebook)
+    public void onFacebookPressed(){
+        Log.e(TAG, "onFacebookPressed: ");
+        facebookLogin();
+    }
 
     @OnClick(R.id.txtNeedAnAccount)
     public void onNeedAccountPressed(){
