@@ -21,6 +21,14 @@ public interface ApiService {
     @GET("web-services.php?web_method=logout")
     Call<String> logOut(@Query("auth_token") String authToken);
 
+    @GET("web-services.php?web_method=forgotPassword")
+    Call<String> forgotPassword(@Query("email") String email);
+
+    @GET("web-services.php?web_method=social_user_signup")
+    Call<String> doSocialLogin(@Query("email") String email, @Query("password") String password,
+                               @Query("fname") String fname, @Query("lname") String lname,
+                               @Query("device_token") String deviceToken);
+
     @GET("web-services.php?web_method=signup")
     Call<String> doSignUp(@Query("email") String email, @Query("password") String password,
                           @Query("fname") String fname, @Query("lname") String lname,

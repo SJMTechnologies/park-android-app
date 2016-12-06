@@ -68,6 +68,73 @@ public class LoginPresenterImpl implements LoginPresenter {
         }
     }
 
+    @Override
+    public void onFacebookLoggedIn() {
+
+    }
+
+    @Override
+    public void onGoogleLoggedIn(String email, String fname, String lname) {
+        if(InternetConnection.checkConnection(context)){
+            loginView.showProgressDialog();
+            ApiService api = RetroClient.getApiService();
+            Random random = new Random();
+            int deviceToken = random.nextInt(25555555);
+            Call<String> call = api.doSocialLogin(email,"",fname,lname,String.valueOf(deviceToken));
+
+            call.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    loginView.hideProgressDialog();
+                    Log.e(TAG, "onResponse onGoogleLoggedIn : " + response.body());
+                    parseLoginResponse(response.body());
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    loginView.hideProgressDialog();
+                    Log.e(TAG, "onFailure onGoogleLoggedIn : " + t.getMessage());
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onForgotPasswordClicked(String email) {
+        if(InternetConnection.checkConnection(context)){
+            loginView.showProgressDialog();
+            ApiService api = RetroClient.getApiService();
+            Call<String> call = api.forgotPassword(email);
+
+            call.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    loginView.hideProgressDialog();
+                    Log.e(TAG, "onResponse: " + response.body());
+                    parseForgotPasswordResponse(response.body());
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    loginView.hideProgressDialog();
+                    Log.e(TAG, "onFailure: " + t.getMessage());
+                }
+            });
+        }
+    }
+
+    private void parseForgotPasswordResponse(String response) {
+        try{
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray result = jsonObject.getJSONArray("result");
+            JSONObject j = result.getJSONObject(0);
+            String message = j.optString("message");
+            loginView.showDialog(message);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     private void parseLoginResponse(String response) {
         try{
             JSONObject jsonObject = new JSONObject(response);

@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        MenuItem loginItem = navigationView.getMenu().getItem(1);
+        MenuItem loginItem = navigationView.getMenu().getItem(3);
         if(ParkApp.preferences.getAuthToken().length() > 0){
             loginItem.setTitle("Logout");
         } else {

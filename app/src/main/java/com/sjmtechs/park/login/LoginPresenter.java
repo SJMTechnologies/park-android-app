@@ -7,4 +7,7 @@ package com.sjmtechs.park.login;
 public interface LoginPresenter {
 
     void onLoginClicked();
+    void onFacebookLoggedIn();
+    void onGoogleLoggedIn(String email, String fname, String lname);
+    void onForgotPasswordClicked(String email);
 }

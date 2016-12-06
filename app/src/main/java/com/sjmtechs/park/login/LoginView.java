@@ -15,4 +15,5 @@ public interface LoginView {
     void navigateToHome();
     void showProgressDialog();
     void hideProgressDialog();
+    void showDialog(String msg);
 }

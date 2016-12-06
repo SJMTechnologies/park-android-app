@@ -1,6 +1,8 @@
 package com.sjmtechs.park.activities;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -10,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Button;
@@ -27,12 +30,18 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
+import com.flyco.animation.BaseAnimatorSet;
+import com.flyco.animation.FadeExit.FadeExit;
+import com.flyco.animation.FlipEnter.FlipVerticalSwingEnter;
+import com.flyco.dialog.listener.OnBtnClickL;
+import com.flyco.dialog.widget.MaterialDialog;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.sjmtechs.park.ParkApp;
 import com.sjmtechs.park.R;
 import com.sjmtechs.park.login.LoginPresenterImpl;
 import com.sjmtechs.park.login.LoginView;
@@ -52,6 +61,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private static final String TAG = LoginActivity.class.getSimpleName();
     private static final int RC_SIGN_IN = 0x1;
 
+    BaseAnimatorSet bas_in;
+    BaseAnimatorSet bas_out;
+
     private ProgressDialog pd;
     //email
     @InjectView(R.id.etEmail)
@@ -65,6 +77,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     @InjectView(R.id.txtNeedAnAccount)
     TextView txtNeedAnAccount;
+
+    @InjectView(R.id.txtForgotPassword)
+    TextView txtForgotPassword;
 
     @InjectView(R.id.btnFacebook)
     ImageView btnFacebook;
@@ -85,6 +100,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         setContentView(R.layout.activity_login);
         ButterKnife.inject(this);
         printKeyHash();
+        bas_in = new FlipVerticalSwingEnter();
+        bas_out = new FadeExit();
 //        pref = getSharedPreferences(Constant.PREF_NAME, 0);
 //        boolean isLoggedIn = pref.getBoolean(Constant.USER_LOGIN, false);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -99,6 +116,11 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 //        }
 
         loginPresenterImpl = new LoginPresenterImpl(LoginActivity.this,this);
+
+        if(ParkApp.preferences.getAuthToken().length() > 0){
+            startActivity(new Intent(LoginActivity.this,MainActivity.class));
+            LoginActivity.this.finish();
+        }
     }
 
     public void printKeyHash() {
@@ -118,7 +140,12 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     @OnClick(R.id.txtNeedAnAccount)
     public void onRegister(){
-        startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+        startActivity(new Intent(LoginActivity.this, LoginActivity.class));
+    }
+
+    @OnClick(R.id.txtForgotPassword)
+    public void onForgotPassword(){
+        dialog();
     }
 
     @OnClick(R.id.btnLogin)
@@ -134,7 +161,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     @OnClick(R.id.txtNeedAnAccount)
     public void onNeedAccountPressed(){
-//        startActivity(new Intent(LoginActivity.this, ParkPreferencesActivity.class));
+        startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
     }
 
     public void facebookLogin() {
@@ -210,10 +237,12 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         if (result.isSuccess()) {
             // Signed in successfully, show authenticated UI.
             GoogleSignInAccount acct = result.getSignInAccount();
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            intent.putExtra("name", acct.getDisplayName());
-            startActivity(intent);
-            Log.e(TAG, "handleSignInResult: acct.getDisplayName() " + acct.getDisplayName());
+
+//            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+//            intent.putExtra("name", acct.getDisplayName());
+//            startActivity(intent);
+            Log.e(TAG, "handleSignInResult: acct.getGivenName() " + acct.getGivenName() + " email " + acct.getEmail() + " acct.getGivenName() " + acct.getFamilyName());
+            loginPresenterImpl.onGoogleLoggedIn(acct.getEmail(),acct.getGivenName(),acct.getFamilyName());
         }
     }
 
@@ -280,5 +309,74 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         if(pd.isShowing()){
             pd.dismiss();
         }
+    }
+
+    @Override
+    public void showDialog(String msg) {
+        showSuccessDialog(msg);
+    }
+
+    private void showSuccessDialog(String msg) {
+
+        Log.e(TAG, "showSuccessDialog: ");
+        final MaterialDialog dialog = new MaterialDialog(LoginActivity.this);
+        OnBtnClickL onBtnClickL1 = new OnBtnClickL() {
+            @Override
+            public void onBtnClick() {
+                dialog.dismiss();
+            }
+        };
+
+        OnBtnClickL onBtnClickL2 = new OnBtnClickL() {
+            @Override
+            public void onBtnClick() {
+                dialog.superDismiss();
+            }
+        };
+
+        OnBtnClickL[] clickLs = new OnBtnClickL[]{onBtnClickL2,onBtnClickL1};
+        dialog.setOnBtnClickL(clickLs);
+        dialog.isTitleShow(false)
+                .content(msg)
+                .btnText("Okay","")
+                .showAnim(bas_in)
+                .dismissAnim(bas_out)
+                .show();
+    }
+    public void dialog(){
+        // Creating alert Dialog with one Button
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(LoginActivity.this);
+
+        // Setting Dialog Title
+        alertDialog.setTitle("Forgot Password");
+
+        // Setting Dialog Message
+        alertDialog.setMessage("Enter your email");
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        alertDialog.setView(input);
+        // Setting Icon to Dialog
+        alertDialog.setIcon(R.mipmap.ic_launcher);
+
+        // Setting Positive "Yes" Button
+        alertDialog.setPositiveButton("Done",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int which) {
+                        // Write your code here to execute after dialog
+                        String email = input.getText().toString();
+                        loginPresenterImpl.onForgotPasswordClicked(email);
+                    }
+                });
+        // Setting Negative "NO" Button
+        alertDialog.setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Write your code here to execute after dialog
+                        dialog.cancel();
+                    }
+                });
+
+        // Showing Alert Message
+        alertDialog.show();
     }
 }
