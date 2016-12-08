@@ -218,7 +218,7 @@ public class MainActivity extends AppCompatActivity
                 startActivity(PurchaseTimeActivity.class);
                 break;
             case R.id.btnPayLater:
-                startActivity(PlacesActivity.class);
+                startActivity(ParkLaterActivity.class);
                 break;
         }
     }

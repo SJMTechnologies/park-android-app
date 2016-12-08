@@ -39,6 +39,9 @@
             android:name=".activities.ParkPreferencesActivity"
             android:screenOrientation="portrait"/>
         <activity
+            android:name=".activities.ParkLaterActivity"
+            android:screenOrientation="portrait"/>
+        <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name"
@@ -53,12 +56,19 @@
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id"/>
         <!--AIzaSyBsAlnHgWylLazvKfi6nIyXz7Tz8OrNy6c-->
+       <!-- <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBs03JDURfTMahhwcDU3_OpF2zP4D3Aalk"/>-->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBs03JDURfTMahhwcDU3_OpF2zP4D3Aalk"/>
+            android:value="AIzaSyA2XqobvsNlAATUKimPQtc8uVUHol7GmQI"/>
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="03ab797e495d9c37669b0fe59637fc75227ae072"/>
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
     </application>
 
 </manifest>
