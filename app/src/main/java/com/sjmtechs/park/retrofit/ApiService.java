@@ -24,6 +24,13 @@ public interface ApiService {
     @GET("web-services.php?web_method=forgotPassword")
     Call<String> forgotPassword(@Query("email") String email);
 
+    @GET("web-services.php?web_method=updatePreference")
+    Call<String> updatePref(@Query("auth_token") String authToken, @Query("radius") String radius,
+                            @Query("auth_transaction") String auth_transaction);
+
+    @GET("web-services.php?web_method=getPreference")
+    Call<String> getPref(@Query("auth_token") String authToken);
+
     @GET("web-services.php?web_method=social_user_signup")
     Call<String> doSocialLogin(@Query("email") String email, @Query("password") String password,
                                @Query("fname") String fname, @Query("lname") String lname,

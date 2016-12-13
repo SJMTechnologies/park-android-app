@@ -19,7 +19,16 @@ public class Register {
 
     private String FirstName, LastName,Email,Telephone,
             AddressOne,City,PostalCode,Password,AddressTwo,
-            ConfirmPassword,Subscribe,Country,RegionOrState,businessName,fax;
+            ConfirmPassword,Country,RegionOrState,businessName,fax;
+    private boolean isSubscribe;
+
+    public boolean isSubscribe() {
+        return isSubscribe;
+    }
+
+    public void setSubscribe(boolean subscribe) {
+        isSubscribe = subscribe;
+    }
 
     public String getBusinessName() {
         return businessName;
@@ -109,14 +118,6 @@ public class Register {
         ConfirmPassword = confirmPassword;
     }
 
-    public String getSubscribe() {
-        return Subscribe;
-    }
-
-    public void setSubscribe(String subscribe) {
-        Subscribe = subscribe;
-    }
-
     public String getCountry() {
         return Country;
     }
@@ -154,7 +155,7 @@ public class Register {
                 ", Password='" + Password + '\'' +
                 ", AddressTwo='" + AddressTwo + '\'' +
                 ", ConfirmPassword='" + ConfirmPassword + '\'' +
-                ", Subscribe='" + Subscribe + '\'' +
+                ", Subscribe='" + isSubscribe + '\'' +
                 ", Country='" + Country + '\'' +
                 ", RegionOrState='" + RegionOrState + '\'' +
                 ", businessName='" + businessName + '\'' +

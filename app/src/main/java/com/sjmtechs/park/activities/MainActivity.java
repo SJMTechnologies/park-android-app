@@ -3,10 +3,12 @@ package com.sjmtechs.park.activities;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -32,6 +34,8 @@ import com.sjmtechs.park.R;
 import com.sjmtechs.park.retrofit.ApiService;
 import com.sjmtechs.park.retrofit.RetroClient;
 import com.sjmtechs.park.utils.InternetConnection;
+
+import org.json.JSONObject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -123,12 +127,61 @@ public class MainActivity extends AppCompatActivity
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        MenuItem loginItem = navigationView.getMenu().getItem(3);
+        MenuItem loginItem = navigationView.getMenu().getItem(2);
         if(ParkApp.preferences.getAuthToken().length() > 0){
             loginItem.setTitle("Logout");
         } else {
             loginItem.setTitle("Login");
         }
+
+        getPrefData();
+    }
+
+    private void getPrefData() {
+        String authToken = ParkApp.preferences.getAuthToken();
+        Log.e(TAG, "onBackPressed: authToken " + authToken);
+
+        if(InternetConnection.checkConnection(MainActivity.this)){
+            ApiService api = RetroClient.getApiService();
+
+            Call<String> call = api.getPref(authToken);
+
+            call.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    Log.e(TAG, "onResponse: " + response.isSuccessful());
+                    if(response.isSuccessful()){
+                        Log.e(TAG, "onResponse: getPrefData " + response.body());
+                        getJson(response.body());
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    Log.e(TAG, "onFailure: " + t.getMessage());
+                }
+            });
+        }
+    }
+
+    private void getJson(String body) {
+        try{
+            JSONObject jsonObject = new JSONObject(body);
+            JSONObject result = jsonObject.getJSONObject("result");
+            JSONObject rows = result.getJSONObject("rows");
+
+            String code = rows.optString("code");
+            if(code.equals("1")){
+                JSONObject zero = result.getJSONObject("0");
+                String radius = zero.optString("radius");
+                String auth_transaction = zero.optString("auth_transaction");
+                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                pref.edit().putString("distance",radius).putString("authenticationType", auth_transaction).apply();
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -147,11 +200,7 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_register) {
-            navigationView.setCheckedItem(NavigationView.NO_ID);
-            ParkApp.preferences.setIsUpdate(false);
-            startActivity(RegisterActivity.class);
-        } else if (id == R.id.nav_login) {
+        if (id == R.id.nav_login) {
             if(ParkApp.preferences.getAuthToken().length() > 0){
                 logOut(ParkApp.preferences.getAuthToken());
             } else {

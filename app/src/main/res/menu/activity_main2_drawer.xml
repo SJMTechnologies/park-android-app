@@ -2,9 +2,6 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/nav_register"
-            android:title="@string/create_new_account"/>
 
         <item
             android:id="@+id/nav_my_account"

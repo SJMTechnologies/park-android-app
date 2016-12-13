@@ -49,7 +49,7 @@ public class Databasehelper extends SQLiteOpenHelper {
         cv.put(Register.KEY_COUNTRY, reg.getCountry());
         cv.put(Register.KEY_REGION_OR_STATE, reg.getRegionOrState());
         cv.put(Register.KEY_PASSWORD, reg.getPassword());
-        cv.put(Register.KEY_SUBSCRIBE, reg.getSubscribe());
+        cv.put(Register.KEY_SUBSCRIBE, String.valueOf(reg.isSubscribe()));
 
         long id = db.insert(Register.TABLE_NAME, null, cv);
         Log.e(TAG, "insert: id " + id);

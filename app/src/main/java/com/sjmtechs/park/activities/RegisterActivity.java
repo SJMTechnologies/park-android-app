@@ -167,7 +167,7 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         }
     };
 
-    private String strSubscribe = "0";
+    private boolean isSubscribe;
     private String strCountry = "";
     private String strRegionOrState = "";
 
@@ -181,12 +181,11 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int id) {
                 if (id == R.id.rdSubscribeYes) {
-                    strSubscribe = "1";
+                    isSubscribe = true;
                 } else if (id == R.id.rdSubscribeNo) {
-                    strSubscribe = "0";
+                    isSubscribe = false;
                 }
-
-                Log.e(TAG, "onCheckedChanged: " + strSubscribe);
+                Log.e(TAG, "onCheckedChanged: " + isSubscribe);
             }
         });
         bas_in = new FlipVerticalSwingEnter();
@@ -510,7 +509,7 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         register.setCountry(strCountry);
         register.setRegionOrState(strRegionOrState);
         register.setConfirmPassword(strConfirmPassword);
-        register.setSubscribe(strSubscribe);
+        register.setSubscribe(isSubscribe);
 
         return register;
     }
@@ -568,13 +567,12 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
         etPostalCode.setText(register.getPostalCode());
         etFax.setText(register.getFax());
         etTelephone.setFilters(new InputFilter[]{filter});
-        Log.e(TAG, "setUpdateData: register.getSubscribe() " + register.getSubscribe());
-        if(register.getSubscribe().equals("1")){
-            rdSubscribeYes.setSelected(true);
+        Log.e(TAG, "setUpdateData: register.isSubscribe() " + register.isSubscribe());
+        if(register.isSubscribe()){
+            rgSubscribe.check(R.id.rdSubscribeYes);
         } else {
-            rdSubscribeNo.setSelected(true);
+            rgSubscribe.check(R.id.rdSubscribeNo);
         }
-
         countryId = register.getCountry();
         stateId = register.getRegionOrState();
     }
@@ -588,7 +586,6 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
     }
 
     private void showSuccessDialog(String msg) {
-
         Log.e(TAG, "showSuccessDialog: ");
         final MaterialDialog dialog = new MaterialDialog(RegisterActivity.this);
         OnBtnClickL onBtnClickL1 = new OnBtnClickL() {

@@ -103,7 +103,7 @@ public class RegisterPresenterImpl implements RegisterPresenter {
             ApiService api = RetroClient.getApiService();
             String phone = register.getTelephone();
             String p = phone.replace("(", "").replace(" ", "").replace(")", "").replace("-", "");
-            Log.e(TAG, "onRegisteredClicked: getSubscribe " + register.getSubscribe());
+            Log.e(TAG, "onRegisteredClicked: getSubscribe " + register.isSubscribe());
             Call<String> call;
             Log.e(TAG, "onRegisteredClicked: isUpdate " + isUpdate);
             if (isUpdate) {
@@ -112,13 +112,13 @@ public class RegisterPresenterImpl implements RegisterPresenter {
                         register.getLastName(), register.getBusinessName(), register.getAddressOne(),
                         register.getAddressTwo(), register.getCity(), register.getRegionOrState(),
                         register.getPostalCode(), register.getCountry(), p,
-                        register.getFax(), register.getSubscribe());
+                        register.getFax(), String.valueOf(register.isSubscribe()));
             } else {
                 call = api.doSignUp(register.getEmail().trim(), register.getPassword(), register.getFirstName(),
                         register.getLastName(), register.getBusinessName(), register.getAddressOne(),
                         register.getAddressTwo(), register.getCity(), register.getRegionOrState(),
                         register.getPostalCode(), register.getCountry(), p,
-                        register.getFax(), register.getSubscribe());
+                        register.getFax(), String.valueOf(register.isSubscribe()));
             }
 
             call.enqueue(new Callback<String>() {
@@ -188,7 +188,13 @@ public class RegisterPresenterImpl implements RegisterPresenter {
                 register.setEmail(j.optString("email"));
                 register.setTelephone(j.optString("telephone"));
                 register.setFax(j.optString("fax"));
-                register.setSubscribe(j.optString("newsletter"));
+                register.setBusinessName(j.optString("company"));
+                if(j.optString("newsletter").equals("1")){
+                    register.setSubscribe(true);
+                } else {
+                    register.setSubscribe(false);
+                }
+                Log.e(TAG, "getProfileFromJson: register.isSubscribe() " + register.isSubscribe());
                 registerView.setUpdateData(register);
             }
         } catch (Exception e) {
