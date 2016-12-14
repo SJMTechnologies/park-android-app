@@ -31,6 +31,7 @@ import com.flyco.dialog.listener.OnBtnClickL;
 import com.flyco.dialog.widget.MaterialDialog;
 import com.sjmtechs.park.ParkApp;
 import com.sjmtechs.park.R;
+import com.sjmtechs.park.fragment.ParkLaterFragment;
 import com.sjmtechs.park.retrofit.ApiService;
 import com.sjmtechs.park.retrofit.RetroClient;
 import com.sjmtechs.park.utils.InternetConnection;
@@ -38,7 +39,7 @@ import com.sjmtechs.park.utils.InternetConnection;
 import org.json.JSONObject;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -51,14 +52,15 @@ public class MainActivity extends AppCompatActivity
     private static final int PERMISSION_REQUEST_CODE = 0x1;
     private static final int LOCATION_REQUEST = 0x2;
 
+    private boolean isFromParkLater;
     private ProgressDialog pd;
-    @InjectView(R.id.btnPayNow)
+    @BindView(R.id.btnPayNow)
     Button btnPayNow;
 
-    @InjectView(R.id.btnPayLater)
+    @BindView(R.id.btnPayLater)
     Button btnPayLater;
 
-    @InjectView(R.id.txtUserName)
+    @BindView(R.id.txtUserName)
     TextView txtUserName;
 
     BaseAnimatorSet bas_in;
@@ -74,7 +76,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 //        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main2);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -169,19 +171,19 @@ public class MainActivity extends AppCompatActivity
             JSONObject jsonObject = new JSONObject(body);
             JSONObject result = jsonObject.getJSONObject("result");
             JSONObject rows = result.getJSONObject("rows");
-
             String code = rows.optString("code");
             if(code.equals("1")){
-                JSONObject zero = result.getJSONObject("0");
-                String radius = zero.optString("radius");
-                String auth_transaction = zero.optString("auth_transaction");
-                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-                pref.edit().putString("distance",radius).putString("authenticationType", auth_transaction).apply();
+                for (int i = 0; i < rows.length() - 1; i++) {
+                    JSONObject zero = result.getJSONObject(String.valueOf(i));
+                    String radius = zero.optString("radius");
+                    String auth_transaction = zero.optString("auth_transaction");
+                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                    pref.edit().putString("distance",radius).putString("authenticationType", auth_transaction).apply();
+                }
             }
         } catch (Exception e){
             e.printStackTrace();
         }
-
     }
 
     @Override
@@ -264,15 +266,19 @@ public class MainActivity extends AppCompatActivity
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnPayNow:
-                startActivity(PurchaseTimeActivity.class);
+                isFromParkLater = false;
+                startActivity(MapActivity.class);
                 break;
             case R.id.btnPayLater:
-                startActivity(ParkLaterActivity.class);
+                isFromParkLater = true;
+                startActivity(MapActivity.class);
                 break;
         }
     }
     private void startActivity(Class cls) {
-        startActivity(new Intent(MainActivity.this, cls));
+        Intent intent = new Intent(MainActivity.this, cls);
+        intent.putExtra(ParkLaterFragment.KEY_IS_FROM_PARK_LATER, isFromParkLater);
+        startActivity(intent);
     }
 
     @Override

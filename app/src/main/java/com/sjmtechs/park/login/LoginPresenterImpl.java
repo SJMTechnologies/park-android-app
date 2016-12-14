@@ -81,7 +81,6 @@ public class LoginPresenterImpl implements LoginPresenter {
             Random random = new Random();
             int deviceToken = random.nextInt(25555555);
             Call<String> call = api.doSocialLogin(email,"",fname,lname,String.valueOf(deviceToken));
-
             call.enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(Call<String> call, Response<String> response) {

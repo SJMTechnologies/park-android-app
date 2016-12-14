@@ -54,4 +54,8 @@ public interface ApiService {
                           @Query("country") String country, @Query("phone") String phone,
                           @Query("fax") String fax, @Query("subscribe") String subscribe);
 
+    @GET("web-services.php?web_method=getMeters")
+    Call<String> getMarkerDetails(@Query("auth_token") String authToken,
+                                  @Query("latitude") String latitude,
+                                  @Query("longitude") String longitude);
 }

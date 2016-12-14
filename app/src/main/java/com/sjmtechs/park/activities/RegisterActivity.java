@@ -50,7 +50,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -63,79 +63,79 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
 
     BaseAnimatorSet bas_in;
     BaseAnimatorSet bas_out;
-    @InjectView(R.id.etFirstName)
+    @BindView(R.id.etFirstName)
     EditText etFirstName;
 
-    @InjectView(R.id.etLastName)
+    @BindView(R.id.etLastName)
     EditText etLastName;
 
-    @InjectView(R.id.etEmail)
+    @BindView(R.id.etEmail)
     EditText etEmail;
 
-    @InjectView(R.id.etTelephone)
+    @BindView(R.id.etTelephone)
     EditText etTelephone;
 
-    @InjectView(R.id.etAddressOne)
+    @BindView(R.id.etAddressOne)
     EditText etAddressOne;
 
-    @InjectView(R.id.etAddressTwo)
+    @BindView(R.id.etAddressTwo)
     EditText etAddressTwo;
 
-    @InjectView(R.id.etCity)
+    @BindView(R.id.etCity)
     EditText etCity;
 
-    @InjectView(R.id.etPostalCode)
+    @BindView(R.id.etPostalCode)
     EditText etPostalCode;
 
-    @InjectView(R.id.etPassword)
+    @BindView(R.id.etPassword)
     EditText etPassword;
 
-    @InjectView(R.id.etPasswordConfirm)
+    @BindView(R.id.etPasswordConfirm)
     EditText etPasswordConfirm;
 
-    @InjectView(R.id.etBusinessName)
+    @BindView(R.id.etBusinessName)
     EditText etBusinessName;
 
-    @InjectView(R.id.etFax)
+    @BindView(R.id.etFax)
     EditText etFax;
 
-    @InjectView(R.id.rgSubscribe)
+    @BindView(R.id.rgSubscribe)
     RadioGroup rgSubscribe;
 
-    @InjectView(R.id.rdSubscribeYes)
+    @BindView(R.id.rdSubscribeYes)
     RadioButton rdSubscribeYes;
 
-    @InjectView(R.id.rdSubscribeNo)
+    @BindView(R.id.rdSubscribeNo)
     RadioButton rdSubscribeNo;
 
-    @InjectView(R.id.chkPrivacyPolicy)
+    @BindView(R.id.chkPrivacyPolicy)
     CheckBox chkPrivacyPolicy;
 
-    @InjectView(R.id.btnContinue)
+    @BindView(R.id.btnContinue)
     Button btnContinue;
 
-    @InjectView(R.id.spCountry)
+    @BindView(R.id.spCountry)
     Spinner spCountry;
 
-    @InjectView(R.id.spRegionOrState)
+    @BindView(R.id.spRegionOrState)
     Spinner spRegionOrState;
 
-    @InjectView(R.id.countryProgressBar)
+    @BindView(R.id.countryProgressBar)
     ProgressBar countryProgressBar;
 
-    @InjectView(R.id.regionOrStateProgressBar)
+    @BindView(R.id.regionOrStateProgressBar)
     ProgressBar regionOrStateProgressBar;
 
-    @InjectView(R.id.textInputPassword)
+    @BindView(R.id.textInputPassword)
     TextInputLayout textInputPassword;
 
-    @InjectView(R.id.textInputConfirmPassword)
+    @BindView(R.id.textInputConfirmPassword)
     TextInputLayout textInputConfirmPassword;
 
-    @InjectView(R.id.txtYourPassword)
+    @BindView(R.id.txtYourPassword)
     TextView txtYourPassword;
 
-    @InjectView(R.id.viewThree)
+    @BindView(R.id.viewThree)
     View viewThree;
 
     String countryId = "", stateId = "";
@@ -175,7 +175,7 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
         registerPresenter = new RegisterPresenterImpl(RegisterActivity.this, this);
         rgSubscribe.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override

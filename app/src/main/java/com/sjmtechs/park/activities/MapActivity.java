@@ -11,14 +11,20 @@ import android.util.Log;
 import com.sjmtechs.park.R;
 import com.sjmtechs.park.fragment.ParkLaterFragment;
 
-public class ParkLaterActivity extends AppCompatActivity {
+public class MapActivity extends AppCompatActivity {
 
+    boolean isFromParkLater;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_park_later);
 
-        ParkLaterFragment parkLaterFragment = new ParkLaterFragment();
+        try {
+            isFromParkLater = getIntent().getExtras().getBoolean(ParkLaterFragment.KEY_IS_FROM_PARK_LATER);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        ParkLaterFragment parkLaterFragment = ParkLaterFragment.newInstance(isFromParkLater);
         replaceFragment(parkLaterFragment,ParkLaterFragment.class.getSimpleName());
     }
 

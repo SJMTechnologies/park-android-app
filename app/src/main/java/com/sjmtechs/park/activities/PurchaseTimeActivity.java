@@ -12,27 +12,27 @@ import com.sjmtechs.park.purchase.PurchasePresenterImpl;
 import com.sjmtechs.park.purchase.PurchaseView;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import butterknife.OnClick;
 
 public class PurchaseTimeActivity extends AppCompatActivity implements PurchaseView{
 
-    @InjectView(R.id.btnIncrease)
+    @BindView(R.id.btnIncrease)
     ImageView btnIncrease;
 
-    @InjectView(R.id.btnDecrease)
+    @BindView(R.id.btnDecrease)
     ImageView btnDecrease;
 
-    @InjectView(R.id.btnDone)
+    @BindView(R.id.btnDone)
     ImageView btnDone;
 
-    @InjectView(R.id.btnCancel)
+    @BindView(R.id.btnCancel)
     ImageView btnCancel;
 
-    @InjectView(R.id.txtPrice)
+    @BindView(R.id.txtPrice)
     TextView txtPrice;
 
-    @InjectView(R.id.txtTime)
+    @BindView(R.id.txtTime)
     TextView txtTime;
 
     private PurchasePresenterImpl purchasePresenter;
@@ -41,7 +41,7 @@ public class PurchaseTimeActivity extends AppCompatActivity implements PurchaseV
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_purchase_time);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         purchasePresenter = new PurchasePresenterImpl(this);
     }

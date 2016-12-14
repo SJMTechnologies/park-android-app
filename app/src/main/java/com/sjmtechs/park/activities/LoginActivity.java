@@ -51,8 +51,8 @@ import org.json.JSONObject;
 import java.security.MessageDigest;
 import java.util.Arrays;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
@@ -66,25 +66,25 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     private ProgressDialog pd;
     //email
-    @InjectView(R.id.etEmail)
+    @BindView(R.id.etEmail)
     EditText etEmail;
 
-    @InjectView(R.id.etPassword)
+    @BindView(R.id.etPassword)
     EditText etPassword;
 
-    @InjectView(R.id.btnLogin)
+    @BindView(R.id.btnLogin)
     Button btnLogin;
 
-    @InjectView(R.id.txtNeedAnAccount)
+    @BindView(R.id.txtNeedAnAccount)
     TextView txtNeedAnAccount;
 
-    @InjectView(R.id.txtForgotPassword)
+    @BindView(R.id.txtForgotPassword)
     TextView txtForgotPassword;
 
-    @InjectView(R.id.btnFacebook)
+    @BindView(R.id.btnFacebook)
     ImageView btnFacebook;
 
-    @InjectView(R.id.btnGooglePlus)
+    @BindView(R.id.btnGooglePlus)
     ImageView btnGooglePlus;
 
 //    private Databasehelper db;
@@ -98,7 +98,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_login);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
         printKeyHash();
         bas_in = new FlipVerticalSwingEnter();
         bas_out = new FadeExit();

@@ -36,7 +36,7 @@ dependencies {
     compile 'com.flyco.animation:FlycoAnimation_Lib:1.0.0@aar'
     compile 'com.android.support:multidex:1.0.1'
     compile 'com.nineoldandroids:library:2.4.0'
-    compile 'com.jakewharton:butterknife:6.1.0'
+//    compile 'com.jakewharton:butterknife:6.1.0'
     compile 'com.android.support:design:24.2.1'
     compile 'com.android.support:cardview-v7:24.2.1'
     compile 'com.facebook.android:facebook-android-sdk:4.7.0'
@@ -45,5 +45,7 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-gson:2.0.2'
     compile 'com.android.support:support-v4:24.2.1'
     testCompile 'junit:junit:4.12'
+    compile 'com.jakewharton:butterknife:8.4.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
 }
 apply plugin: 'com.google.gms.google-services'
