@@ -61,7 +61,7 @@
             android:value="AIzaSyBs03JDURfTMahhwcDU3_OpF2zP4D3Aalk"/>-->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyA2XqobvsNlAATUKimPQtc8uVUHol7GmQI"/>
+            android:value="AIzaSyCf_8BZqa9sfHiEUjfcHFGF5_CwNMiUQgE"/>
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="03ab797e495d9c37669b0fe59637fc75227ae072"/>

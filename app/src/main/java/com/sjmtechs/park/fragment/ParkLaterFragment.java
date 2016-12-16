@@ -238,9 +238,6 @@ public class ParkLaterFragment extends Fragment implements LocationListener, Goo
                     md.setLatitude(j.optString(MarkerDetail.KEY_LATITUDE));
                     md.setLongitude(j.optString(MarkerDetail.KEY_LONGITUDE));
                     Log.e(TAG, "getMarkerJson: md " + md.toString());
-//                    mParkLaterGoogleMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker())
-//                    .position(new LatLng(Double.parseDouble(md.getLatitude()),Double.parseDouble(md.getLongitude())))
-//                    .title(md.getArea()));
                     addMarkerToMap(md);
                 }
             } else {
